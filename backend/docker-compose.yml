@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: rbac_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rbac_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    container_name: rbac_backend
+    ports:
+      - "4000:4000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: rbac_db
+      JWT_SECRET: your-secret-key
+      JWT_REFRESH_SECRET: your-refresh-secret
+    depends_on:
+      - postgres
+    volumes:
+      - ./src:/app/src
+    command: npm run start:dev
+
+volumes:
+  postgres_data:
